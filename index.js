@@ -9,6 +9,7 @@ var url = require('url');
 var StringDecoder = require('string_decoder').StringDecoder;
 var routes = require('./routes');
 var handlers = require('./handlers');
+var config = require('./config');
 
 // Server should respond to all the requests with a string
 var server = http.createServer(function(request, response) {
@@ -57,13 +58,10 @@ var server = http.createServer(function(request, response) {
     // Route the request to the chosen handler from the routs
     chosenHandler(data, function(statusCode, payload) {
       // Sanitize the statusCode
-      statusCode = typeof(statusCode) == 'number' ?
-        statusCode :
-        200;
+      statusCode = typeof(statusCode) == 'number' ? statusCode : 200;
 
       // Sanitize the payload
-      payload = typeof(payload) == 'object' ?
-        payload : {};
+      payload = typeof(payload) == 'object' ? payload : {};
 
       // Convert the payload to the String
       var payloadString = JSON.stringify(payload);
@@ -79,6 +77,6 @@ var server = http.createServer(function(request, response) {
 });
 
 // Start the server and have it listen on the port 3000
-server.listen(3000, function() {
-  console.log('Server started listening on port 3000');
+server.listen(config.port, function() {
+  console.log('Server started listening on port ' + config.port + ' in ' + config.envName + ' environment');
 });
