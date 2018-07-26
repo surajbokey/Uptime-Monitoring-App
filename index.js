@@ -12,6 +12,7 @@ var routes = require('./routes');
 var notFound = require('./handlers/not-found');
 var config = require('./config');
 var fs = require('fs');
+var helpers = require('./lib/helpers')
 
 // Instantiate the http server
 var httpServer = http.createServer(function(request, response) {
@@ -68,7 +69,7 @@ var unifiedServer = function(request, response) {
     // Choose the handle this request should go to
     var chosenHandler = typeof(routes[trimmedPath]) !== 'undefined' ?
       routes[trimmedPath] :
-      handlers.notFound;
+      notFound.service;
 
     // Construct the data object to send to the handler
     var data = {
@@ -76,7 +77,7 @@ var unifiedServer = function(request, response) {
       'queryString': queryString,
       'httpMethod': httpMethod,
       'headers': headers,
-      'payload': buffer
+      'payload': helpers.parseJsonToObject(buffer)
     }
 
     // Route the request to the chosen handler from the routs
