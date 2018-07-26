@@ -4,10 +4,11 @@
  */
 
 // Dependencies
-var handlers = require('./handlers');
+var user = require('./handlers/user');
+var ping = require('./handlers/ping');
 
 var routes = {
-  'ping': handlers.ping
+  'ping': ping.service,
 };
 
 // Export the routes
