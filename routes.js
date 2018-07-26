@@ -9,6 +9,7 @@ var ping = require('./handlers/ping');
 
 var routes = {
   'ping': ping.service,
+  'user': user.service
 };
 
 // Export the routes
