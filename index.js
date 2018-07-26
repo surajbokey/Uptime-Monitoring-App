@@ -9,7 +9,7 @@ var https = require('https');
 var url = require('url');
 var StringDecoder = require('string_decoder').StringDecoder;
 var routes = require('./routes');
-var handlers = require('./handlers');
+var notFound = require('./handlers/not-found');
 var config = require('./config');
 var fs = require('fs');
 
