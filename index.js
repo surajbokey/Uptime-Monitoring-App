@@ -12,7 +12,7 @@ var routes = require('./routes');
 var notFound = require('./handlers/not-found');
 var config = require('./config');
 var fs = require('fs');
-var helpers = require('./lib/helpers')
+var helpers = require('./lib/helpers');
 
 // Instantiate the http server
 var httpServer = http.createServer(function(request, response) {

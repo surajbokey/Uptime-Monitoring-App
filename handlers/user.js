@@ -40,7 +40,7 @@ user.post = function(data, callback) {
             'firstName': firstName,
             'lastName': lastName,
             'phone': phone,
-            'password': hashedPassword,
+            'hashedPassword': hashedPassword,
             'tosAgreement': true
           }
 
@@ -75,20 +75,115 @@ user.post = function(data, callback) {
 
 // Handle GET request
 user.get = function(data, callback) {
-  console.log('Get request');
-  callback(200);
+  // Check that the phone number is valid
+  var phone = typeof(data.queryString.phone) == 'string' && data.queryString.phone.trim().length == 10 ? data.queryString.phone.trim() : false;
+  if (phone) {
+    // Lookup the user
+    _data.read('users', phone, function(err, data) {
+      if (!err && data) {
+        // Remove the password from the data
+        delete data.hashedPassword;
+        callback(200, data);
+      } else {
+        callback(404);
+      }
+    });
+  } else {
+    callback(400, {
+      'Error': 'Missing required field'
+    });
+  }
 };
 
 // Handle PUT request
 user.put = function(data, callback) {
-  console.log('Put request');
-  callback(200);
+  // Check for the required field
+  var phone = typeof(data.payload.phone) == 'string' && data.payload.phone.trim().length == 10 ? data.payload.phone.trim() : false;
+
+  // Check for the fields to be updated
+  var firstName = typeof(data.payload.firstName) == 'string' && data.payload.firstName.trim().length > 0 ? data.payload.firstName.trim() : false;
+  var lastName = typeof(data.payload.lastName) == 'string' && data.payload.lastName.trim().length > 0 ? data.payload.lastName.trim() : false;
+  var password = typeof(data.payload.password) == 'string' && data.payload.password.trim().length > 0 ? data.payload.password.trim() : false;
+
+  if (phone) {
+    if (firstName || lastName || password) {
+      // Lookup the user
+      _data.read('users', phone, function(err, data) {
+        if (!err && data) {
+          // Update the available fields
+          if (firstName) {
+            data.firstName = firstName;
+          }
+
+          if (lastName) {
+            data.lastName = lastName;
+          }
+
+          if (password) {
+            data.hashedPassword = helpers.hash(password);
+          }
+
+          // Store the updated user
+          _data.update('users', phone, data, function(err) {
+            if (!err) {
+              callback(200);
+            } else {
+              console.log(err);
+              callback(500, {
+                'Error': 'Not able to update the user data'
+              });
+            }
+          });
+        } else {
+          console.log(err);
+          callback(400, {
+            'Error': 'Specified user does not exist'
+          });
+        }
+      });
+    } else {
+      callback(400, {
+        'Error': 'Missing required field'
+      });
+    }
+  } else {
+    callback(400, {
+      'Error': 'Missing required field'
+    });
+  }
+
 };
 
 // Handle DELETE request
 user.delete = function(data, callback) {
-  console.log('Delete request');
-  callback(200);
+  // Check for the valid phone number
+  var phone = typeof(data.queryString.phone) == 'string' && data.queryString.phone.trim().length == 10 ? data.queryString.phone.trim() : false;
+
+  if (phone) {
+    // Lookup the  user
+    _data.read('users', phone, function(err) {
+      if (!err) {
+        // Remove the user
+        _data.delete('users', phone, function(err) {
+          if (!err) {
+            callback(200);
+          } else {
+            callback(500, {
+              'Error': 'Could not delete the specified user'
+            });
+          }
+        });
+      } else {
+        callback(400, {
+          'Error': 'Specified user does not exist'
+        })
+      }
+    });
+  } else {
+    callback(400, {
+      'Error': 'Required field missing'
+    });
+  }
 };
 
 // Export the module
